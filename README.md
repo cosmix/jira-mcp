@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server implementation that provides access to JIRA data with relationship tracking, optimized data payloads, and data cleaning for AI context windows.
 
+<a href="https://glama.ai/mcp/servers/@cosmix/jira-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@cosmix/jira-mcp/badge" alt="JIRA Server MCP server" />
+</a>
+
 ℹ️ There is a separate MCP server [for Confluence](https://github.com/cosmix/confluence-mcp)
 
 ## Features
