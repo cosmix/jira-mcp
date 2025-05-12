@@ -4,13 +4,13 @@
     "": {
       "name": "jira-mcp",
       "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.9.0",
+        "@modelcontextprotocol/sdk": "^1.11.0",
         "typescript": "^5.8.3",
       },
       "devDependencies": {
-        "@types/node": "^22.14.1",
-        "bun-types": "^1.2.9",
-        "vite": "^6.2.6",
+        "@types/node": "^22.15.15",
+        "bun-types": "^1.2.12",
+        "vite": "^6.3.5",
         "vite-plugin-dts": "^4.5.3",
       },
     },
@@ -140,7 +140,7 @@
 
     "@types/estree": ["@types/estree@1.0.7", "", {}, "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="],
 
-    "@types/node": ["@types/node@22.15.15", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A=="],
+    "@types/node": ["@types/node@22.15.17", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-wIX2aSZL5FE+MR0JlvF87BNVrtFWf6AE6rxSE9X7OwnVvoyCQjpzSRJ+M87se/4QCkCiebQAqrJ0y6fwIyi7nw=="],
 
     "@volar/language-core": ["@volar/language-core@2.4.12", "", { "dependencies": { "@volar/source-map": "2.4.12" } }, "sha512-RLrFdXEaQBWfSnYGVxvR2WrO6Bub0unkdHYIdC31HzIEqATIuuhRRzYu76iGPZ6OtA4Au1SnW0ZwIqPP217YhA=="],
 
