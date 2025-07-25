@@ -57,7 +57,7 @@ describe("JiraApiService", () => {
   });
 
   describe("constructor", () => {
-    test("should set up fetch with correct base URL and auth header", async () => {
+    test("should set up fetch with correct base URL and basic auth header", async () => {
       // Mock fetch to verify headers
       const mockFetch = async (
         input: RequestInfo | URL,
@@ -76,6 +76,27 @@ describe("JiraApiService", () => {
       global.fetch = mockFetch;
 
       await service.searchIssues("project = TEST");
+    });
+
+    test("should set up fetch with bearer auth header when authType is bearer", async () => {
+      const bearerService = new JiraApiService(baseUrl, email, apiToken, 'bearer');
+      
+      // Mock fetch to verify headers
+      const mockFetch = async (
+        input: RequestInfo | URL,
+        init?: RequestInit,
+      ) => {
+        const url = input.toString();
+        expect(url.startsWith(baseUrl)).toBe(true);
+        const headers = init?.headers as Headers;
+        expect(headers.get("Authorization")).toBe(`Bearer ${apiToken}`);
+        expect(headers.get("Content-Type")).toBe("application/json");
+        return new Response(JSON.stringify({ issues: [] }));
+      };
+      mockFetch.preconnect = async () => {}; // Add dummy preconnect
+      global.fetch = mockFetch;
+
+      await bearerService.searchIssues("project = TEST");
     });
   });
 

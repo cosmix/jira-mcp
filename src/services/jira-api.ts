@@ -11,11 +11,21 @@ export class JiraApiService {
   protected baseUrl: string;
   protected headers: Headers;
 
-  constructor(baseUrl: string, email: string, apiToken: string) {
+  constructor(baseUrl: string, email: string, apiToken: string, authType: 'basic' | 'bearer' = 'basic') {
     this.baseUrl = baseUrl;
-    const auth = Buffer.from(`${email}:${apiToken}`).toString("base64");
+    
+    let authHeader: string;
+    if (authType === 'bearer') {
+      // For Jira Data Center Personal Access Tokens (PATs)
+      authHeader = `Bearer ${apiToken}`;
+    } else {
+      // For Basic authentication with username/password or API token
+      const auth = Buffer.from(`${email}:${apiToken}`).toString("base64");
+      authHeader = `Basic ${auth}`;
+    }
+    
     this.headers = new Headers({
-      Authorization: `Basic ${auth}`,
+      Authorization: authHeader,
       Accept: "application/json",
       "Content-Type": "application/json",
     });
