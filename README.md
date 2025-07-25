@@ -38,29 +38,44 @@ The server will automatically use the correct API version and authentication met
 ## Environment Variables
 
 ```bash
-JIRA_API_TOKEN=your_api_token
-JIRA_BASE_URL=your_jira_instance_url  # e.g., https://your-domain.atlassian.net
-JIRA_USER_EMAIL=your_email
-JIRA_TYPE=cloud   # or 'server' for Jira Server/Data Center (optional, defaults to 'cloud')
+JIRA_API_TOKEN=your_api_token            # API token for Cloud, PAT or password for Server/DC
+JIRA_BASE_URL=your_jira_instance_url     # e.g., https://your-domain.atlassian.net
+JIRA_USER_EMAIL=your_email               # Your Jira account email
+JIRA_TYPE=cloud                          # 'cloud' or 'server' (optional, defaults to 'cloud')
+JIRA_AUTH_TYPE=basic                     # 'basic' or 'bearer' (optional, defaults to 'basic')
 ```
+
+### Authentication Methods
+
+- **Jira Cloud**: Use API tokens with Basic authentication
+  - Create an API token at: <https://id.atlassian.com/manage-profile/security/api-tokens>
+  - Set `JIRA_AUTH_TYPE=basic` (default)
+  
+- **Jira Server/Data Center**:
+  - **Basic Auth**: Use username/password or API tokens
+    - Set `JIRA_AUTH_TYPE=basic` (default)
+  - **Bearer Auth**: Use Personal Access Tokens (PATs) - available in Data Center 8.14.0+
+    - Create a PAT in your profile settings
+    - Set `JIRA_AUTH_TYPE=bearer`
+    - Use the PAT as your `JIRA_API_TOKEN`
 
 ## Installation & Setup
 
-### 1. Clone the repository:
+### 1. Clone the repository
 
 ```bash
 git clone [repository-url]
 cd jira-mcp
 ```
 
-### 2. Install dependencies and build:
+### 2. Install dependencies and build
 
 ```bash
 bun install
 bun run build
 ```
 
-### 3. Configure the MCP server:
+### 3. Configure the MCP server
 
 Edit the appropriate configuration file:
 
@@ -91,14 +106,15 @@ Add the following configuration under the `mcpServers` object:
         "JIRA_API_TOKEN": "your_api_token",
         "JIRA_BASE_URL": "your_jira_instance_url",
         "JIRA_USER_EMAIL": "your_email",
-        "JIRA_TYPE": "cloud"
+        "JIRA_TYPE": "cloud",
+        "JIRA_AUTH_TYPE": "basic"
       }
     }
   }
 }
 ```
 
-### 4. Restart the MCP server.
+### 4. Restart the MCP server
 
 Within Cline's MCP settings, restart the MCP server. Restart Claude Desktop to load the new MCP server.
 
@@ -237,8 +253,10 @@ Input Schema:
 - Built with TypeScript in strict mode
 - Uses Bun runtime for improved performance
 - Vite for optimized builds
-- Uses JIRA REST API v3
-- Basic authentication with API tokens
+- Uses JIRA REST API v3 (Cloud) or v2 (Server/Data Center)
+- Supports multiple authentication methods:
+  - Basic authentication with API tokens or username/password
+  - Bearer authentication with Personal Access Tokens (PATs)
 - Batched API requests for related data
 - Optimized response payloads for AI context windows
 - Efficient transformation of complex Atlassian structures

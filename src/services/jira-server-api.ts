@@ -3,10 +3,11 @@
 import { JiraApiService } from "./jira-api.js";
 
 export class JiraServerApiService extends JiraApiService {
-  constructor(baseUrl: string, email: string, apiToken: string) {
-    // For Jira Server, authentication is usually Basic Auth (username/password or API token)
-    // The parent constructor works for most cases, but you may need to override headers or endpoints
-    super(baseUrl, email, apiToken);
+  constructor(baseUrl: string, email: string, apiToken: string, authType: 'basic' | 'bearer' = 'basic') {
+    // For Jira Server/Data Center:
+    // - Basic Auth: username/password or API token (traditional method)
+    // - Bearer Auth: Personal Access Tokens (PATs) available in Data Center 8.14.0+
+    super(baseUrl, email, apiToken, authType);
   }
 
   // Example: Override fetchJson to use /rest/api/2/ instead of /rest/api/3/

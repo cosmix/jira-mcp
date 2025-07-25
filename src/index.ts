@@ -15,7 +15,8 @@ declare module "bun" {
     JIRA_API_TOKEN: string;
     JIRA_BASE_URL: string;
     JIRA_USER_EMAIL: string;
-    JIRA_TYPE?: "cloud" | "server";
+    JIRA_TYPE: string;
+    JIRA_AUTH_TYPE: string;
   }
 }
 
@@ -25,6 +26,9 @@ const JIRA_USER_EMAIL = process.env.JIRA_USER_EMAIL;
 const JIRA_TYPE = (process.env.JIRA_TYPE === "server" ? "server" : "cloud") as
   | "cloud"
   | "server";
+const JIRA_AUTH_TYPE = (process.env.JIRA_AUTH_TYPE === "bearer" ? "bearer" : "basic") as
+  | "basic"
+  | "bearer";
 
 if (!JIRA_API_TOKEN || !JIRA_BASE_URL || !JIRA_USER_EMAIL) {
   throw new Error(
@@ -54,12 +58,14 @@ class JiraServer {
         JIRA_BASE_URL,
         JIRA_USER_EMAIL,
         JIRA_API_TOKEN,
+        JIRA_AUTH_TYPE,
       );
     } else {
       this.jiraApi = new JiraApiService(
         JIRA_BASE_URL,
         JIRA_USER_EMAIL,
         JIRA_API_TOKEN,
+        JIRA_AUTH_TYPE,
       );
     }
 
