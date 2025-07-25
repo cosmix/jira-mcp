@@ -29,6 +29,7 @@ The server will automatically use the correct API version and authentication met
 - Clean and transform rich JIRA content for AI context efficiency
 - Support for file attachments with secure multipart upload handling
 - **Supports both Jira Cloud and Jira Server (Data Center) APIs**
+- **Streaming HTTP transport** for remote access with session management
 
 ## Prerequisites
 
@@ -37,12 +38,35 @@ The server will automatically use the correct API version and authentication met
 
 ## Environment Variables
 
+### JIRA Configuration
+
 ```bash
 JIRA_API_TOKEN=your_api_token            # API token for Cloud, PAT or password for Server/DC
 JIRA_BASE_URL=your_jira_instance_url     # e.g., https://your-domain.atlassian.net
 JIRA_USER_EMAIL=your_email               # Your Jira account email
 JIRA_TYPE=cloud                          # 'cloud' or 'server' (optional, defaults to 'cloud')
 JIRA_AUTH_TYPE=basic                     # 'basic' or 'bearer' (optional, defaults to 'basic')
+```
+
+### HTTP Server Configuration (Optional)
+
+```bash
+# Basic settings
+MCP_PORT=3000                            # HTTP server port (default: 3000)
+MCP_ENABLE_SESSIONS=true                 # Enable session management (default: true)
+MCP_JSON_ONLY=false                      # Force JSON-only responses (default: false)
+
+# Authentication - Option 1: Simple Bearer Token
+MCP_AUTH_TOKEN=your-secret-token         # Simple bearer token authentication
+
+# Authentication - Option 2: OAuth2 (Recommended for production)
+MCP_OAUTH_ENABLED=true                   # Enable OAuth2 authentication
+MCP_OAUTH_ISSUER=https://oauth.provider  # OAuth2 authorization server URL
+MCP_OAUTH_INTROSPECTION_URL=https://...  # Token introspection endpoint
+MCP_OAUTH_CLIENT_ID=client-id            # Client ID for introspection (if required)
+MCP_OAUTH_CLIENT_SECRET=client-secret    # Client secret for introspection (if required)
+MCP_OAUTH_REQUIRED_SCOPE=mcp:tools       # Required OAuth2 scope (optional)
+MCP_OAUTH_DOCS_URL=https://...           # Documentation URL for OAuth metadata (optional)
 ```
 
 ### Authentication Methods
@@ -72,10 +96,14 @@ cd jira-mcp
 
 ```bash
 bun install
-bun run build
+bun run build:all  # Builds both stdio and HTTP versions
 ```
 
 ### 3. Configure the MCP server
+
+You can run the MCP server in two modes:
+
+#### Stdio Mode (Default - for local use)
 
 Edit the appropriate configuration file:
 
@@ -113,6 +141,100 @@ Add the following configuration under the `mcpServers` object:
   }
 }
 ```
+
+#### HTTP Mode (for remote access)
+
+The HTTP mode allows remote access to the MCP server with streaming support:
+
+**1. Set environment variables:**
+
+```bash
+# Required JIRA configuration (same as stdio mode)
+export JIRA_API_TOKEN="your_api_token"
+export JIRA_BASE_URL="your_jira_instance_url"
+export JIRA_USER_EMAIL="your_email"
+
+# HTTP server configuration
+export MCP_PORT=3000                    # Server port (default: 3000)
+export MCP_AUTH_TOKEN="your-secret"     # Optional: Bearer token for authentication
+export MCP_ENABLE_SESSIONS=true         # Enable session management (default: true)
+export MCP_JSON_ONLY=false              # Force JSON-only responses (default: false)
+```
+
+**2. Start the HTTP server:**
+
+```bash
+bun run start:http
+```
+
+**3. Connect your MCP client to the HTTP endpoint:**
+
+```json
+{
+  "mcpServers": {
+    "jira-http": {
+      "url": "http://localhost:3000/mcp",
+      "headers": {
+        "Authorization": "Bearer your-secret"  // If MCP_AUTH_TOKEN is set
+      }
+    }
+  }
+}
+```
+
+**Security Options:**
+
+##### Option 1: Simple Bearer Token (Quick Setup)
+
+Set `MCP_AUTH_TOKEN` environment variable and include the token in requests:
+
+```json
+{
+  "headers": {
+    "Authorization": "Bearer your-secret-token"
+  }
+}
+```
+
+##### Option 2: OAuth2 Authentication (Recommended for Production)
+
+The server supports standard OAuth2 bearer token authentication with any OAuth2 provider:
+
+```bash
+# Enable OAuth2 mode
+export MCP_OAUTH_ENABLED=true
+
+# Configure OAuth2 provider
+export MCP_OAUTH_ISSUER="https://your-oauth-provider.com"
+export MCP_OAUTH_INTROSPECTION_URL="https://your-oauth-provider.com/oauth2/introspect"
+
+# Optional: Client credentials for introspection endpoint
+export MCP_OAUTH_CLIENT_ID="your-client-id"
+export MCP_OAUTH_CLIENT_SECRET="your-client-secret"
+
+# Optional: Required scope
+export MCP_OAUTH_REQUIRED_SCOPE="mcp:tools"
+```
+
+**OAuth2 Flow:**
+
+1. Users obtain an access token from your OAuth2 provider
+2. Include the token in requests: `Authorization: Bearer <access_token>`
+3. The MCP server validates tokens via the introspection endpoint
+4. OAuth metadata available at: `/.well-known/oauth-protected-resource`
+
+**Popular OAuth2 Providers:**
+
+- **Auth0**: Set `MCP_OAUTH_INTROSPECTION_URL` to `https://YOUR_DOMAIN.auth0.com/oauth/introspect`
+- **Keycloak**: Set to `https://YOUR_KEYCLOAK/realms/YOUR_REALM/protocol/openid-connect/token/introspect`
+- **Okta**: Set to `https://YOUR_OKTA_DOMAIN/oauth2/v1/introspect`
+
+**Security Best Practices:**
+
+- Always use HTTPS in production (use a reverse proxy like nginx)
+- Configure firewall rules to restrict access
+- Use OAuth2 for multi-user scenarios
+- Implement rate limiting at the proxy level
 
 ### 4. Restart the MCP server
 
