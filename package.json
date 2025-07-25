@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "vite build && chmod +x build/index.js",
+    "build:http": "vite build --config vite.config.http.ts && chmod +x build/http-server.js",
+    "build:all": "bun run build && bun run build:http",
     "start": "bun build/index.js",
+    "start:http": "bun build/http-server.js",
     "dev": "vite",
     "test": "bun test",
     "test:watch": "bun test --watch"
@@ -19,13 +22,13 @@
   "author": "Dimosthenis Kaponis",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.11.0",
+    "@modelcontextprotocol/sdk": "^1.17.0",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
-    "@types/node": "^24.0.3",
-    "bun-types": "^1.2.12",
-    "vite": "^7.0.2",
-    "vite-plugin-dts": "^4.5.3"
+    "@types/node": "^24.1.0",
+    "bun-types": "^1.2.19",
+    "vite": "^7.0.6",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
